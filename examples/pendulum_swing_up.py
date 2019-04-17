@@ -36,10 +36,10 @@ class myPendulum():
         self.env.render()
 
 
-SUBS=3
+SUBS = 3
 bf = 30
-maxiter=50
-max_action=2.0
+maxiter = 50
+max_action = 2.0
 target = np.array([1.0, 0.0, 0.0])
 weights = np.diag([2.0, 2.0, 0.3])
 m_init = np.reshape([-1.0, 0, 0.0], (1,3))

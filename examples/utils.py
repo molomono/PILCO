@@ -11,6 +11,10 @@ def rollout(env, pilco, timesteps, verbose=True, random=False, SUBS=1, render=Tr
     for timestep in range(timesteps):
         if render: env.render()
         u = policy(env, pilco, x, random)
+        
+        if type(u) is 'float':
+            u = np.asarray([u])
+        
         for i in range(SUBS):
             x_new, _, done, _ = env.step(u)
             if done: break
@@ -18,19 +22,24 @@ def rollout(env, pilco, timesteps, verbose=True, random=False, SUBS=1, render=Tr
         if verbose:
             print("Action: ", u)
             print("State : ", x_new)
+        x = np.reshape(x, (-1))
         X.append(np.hstack((x, u)))
         Y.append(x_new - x)
         x = x_new
+        #print(X)
         if done: break
     return np.stack(X), np.stack(Y)
 
 
 def policy(env, pilco, x, random):
-    if random:
+    if random is True:
         return env.action_space.sample()
-    else:
+    elif random is False:
         return pilco.compute_action(x[None, :])[0, :]
-
+    elif random is "Normal": #clippped
+        return np.clip(np.random.randn(env.action_space.high.size), -1.*env.action_space.high, env.action_space.high)
+    elif random is None:
+        return env.action_space.sample()*0.0
 
 @autoflow((float_type,[None, None]), (float_type,[None, None]))
 def predict_one_step_wrapper(mgpr, m, s):
